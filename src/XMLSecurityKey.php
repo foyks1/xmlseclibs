@@ -62,6 +62,8 @@ class XMLSecurityKey
     const RSA_SHA384 = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha384';
     const RSA_SHA512 = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha512';
     const HMAC_SHA1 = 'http://www.w3.org/2000/09/xmldsig#hmac-sha1';
+    const GOST3411 = 'http://www.w3.org/2001/04/xmldsig-more#gostr34102001-gostr3411';
+
     const AUTHTAG_LENGTH = 16;
 
     /** @var array */
@@ -257,6 +259,10 @@ class XMLSecurityKey
                 $this->cryptParams['library'] = $type;
                 $this->cryptParams['method'] = 'http://www.w3.org/2000/09/xmldsig#hmac-sha1';
                 break;
+            case (self::GOST3411):
+                $this->cryptParams['library'] = $type;
+                $this->cryptParams['method'] = 'https://www.w3.org/2001/04/xmldsig-more#gostr3411';
+                break;
             default:
                 throw new Exception('Invalid Key Type');
         }
@@ -372,17 +378,17 @@ class XMLSecurityKey
         if ($this->cryptParams['library'] == 'openssl') {
             switch ($this->cryptParams['type']) {
                 case 'public':
-	                if ($isCert) {
-	                    /* Load the thumbprint if this is an X509 certificate. */
-	                    $this->X509Thumbprint = self::getRawThumbprint($this->key);
-	                }
-	                $this->key = openssl_get_publickey($this->key);
-	                if (! $this->key) {
-	                    throw new Exception('Unable to extract public key');
-	                }
-	                break;
+                    if ($isCert) {
+                        /* Load the thumbprint if this is an X509 certificate. */
+                        $this->X509Thumbprint = self::getRawThumbprint($this->key);
+                    }
+                    $this->key = openssl_get_publickey($this->key);
+                    if (! $this->key) {
+                        throw new Exception('Unable to extract public key');
+                    }
+                    break;
 
-	            case 'private':
+                case 'private':
                     $this->key = openssl_get_privatekey($this->key, $this->passphrase);
                     break;
 
